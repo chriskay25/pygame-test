@@ -23,6 +23,17 @@ def run_game():
             self.surf.fill((150,150,255))
             self.rect = self.surf.get_rect()
 
+        # Move sprite on keypresses.
+        def update(self, pressed_keys):
+            if pressed_keys[K_UP]:
+                self.rect.move_ip(0, -5)
+            if pressed_keys[K_DOWN]:
+                self.rect.move_ip(0, 5)
+            if pressed_keys[K_LEFT]:
+                self.rect.move_ip(-5, 0)
+            if pressed_keys[K_RIGHT]:
+                self.rect.move_ip(5, 0)
+
     pg.init()
 
     screen = pg.display.set_mode([screen_width, screen_height])
@@ -39,15 +50,16 @@ def run_game():
                     running = False
             elif event.type == pg.QUIT:
                 running = False
+
+        # Get all currently pressed keys.
+        pressed_keys = pg.key.get_pressed()
+
+        player.update(pressed_keys)
             
         screen.fill((255,255,255))
 
-        player_center = (
-            (screen_width - player.surf.get_width()) / 2,
-            (screen_height - player.surf.get_height()) / 2
-        )
         # Use blit to copy player Surface onto screen Surface.
-        screen.blit(player.surf, player_center)
+        screen.blit(player.surf, player.rect)
 
         # Screen refresh.
         pg.display.flip()
