@@ -11,11 +11,24 @@ from pygame.locals import (
 )
 
 def run_game():
-    # Initialize and set up screen
-    pg.init()
+    # Set up screen.
     screen_width = 800
     screen_height = 500
+
+    # Create Player object.
+    class Player(pg.sprite.Sprite):
+        def __init__(self):
+            super(Player, self).__init__()
+            self.surf = pg.Surface((75,25))
+            self.surf.fill((150,150,255))
+            self.rect = self.surf.get_rect()
+
+    pg.init()
+
     screen = pg.display.set_mode([screen_width, screen_height])
+    
+    # Instantiate player.
+    player = Player()
 
     running = True
 
@@ -29,17 +42,14 @@ def run_game():
             
         screen.fill((255,255,255))
 
-        surf = pg.Surface((50,50))
-        surf.fill((0,0,0))
-        rect = surf.get_rect()
-        surf_center = (
-            (screen_width - surf.get_width()) / 2,
-            (screen_height - surf.get_height()) / 2
+        player_center = (
+            (screen_width - player.surf.get_width()) / 2,
+            (screen_height - player.surf.get_height()) / 2
         )
-        # Use blit to copy surf Surface onto screen Surface
-        screen.blit(surf, surf_center)
+        # Use blit to copy player Surface onto screen Surface.
+        screen.blit(player.surf, player_center)
 
-        # Screen refresh
+        # Screen refresh.
         pg.display.flip()
 
     pg.quit()
