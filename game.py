@@ -68,6 +68,10 @@ def run_game():
 
     screen = pg.display.set_mode([screen_width, screen_height])
     
+    # Custom event for adding a new enemy
+    ADDENEMY = pg.USEREVENT + 1
+    pg.time.set_timer(ADDENEMY, 250)
+
     # Instantiate player.
     player = Player()
 
@@ -80,16 +84,30 @@ def run_game():
 
     while running:
         for event in pg.event.get():
+            # Did the user press a key?
             if event.type == KEYDOWN:
+                # If user pressed Escape key, stop loop.
                 if event.key == K_ESCAPE:
                     running = False
+
+            # If the user clicked the window close bttn, stop loop.
             elif event.type == pg.QUIT:
                 running = False
+            
+            # Add new enemy
+            elif event.type == ADDENEMY:
+                # Create new enemy and add it to sprite groups.
+                new_enemy = Enemy()
+                enemies.add(new_enemy)
+                all_sprites.add(new_enemy)
+            
 
         # Get all currently pressed keys.
         pressed_keys = pg.key.get_pressed()
-
         player.update(pressed_keys)
+
+        # Update enemy position.
+        enemies.update()
             
         screen.fill((255,255,255))
 
