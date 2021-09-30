@@ -1,4 +1,5 @@
 import pygame as pg
+import random
 # Import pygame.locals for easier access to key coordinates
 from pygame.locals import (
     K_UP,
@@ -43,6 +44,25 @@ def run_game():
                 self.rect.top = 0
             if self.rect.bottom >= screen_height:
                 self.rect.bottom = screen_height
+    
+    # Create enemy object
+    class Enemy(pg.sprite.Sprite):
+        def __init__(self):
+            super(Enemy, self).__init__()
+            self.surf = pg.Surface((20,10))
+            self.surf.fill((90,90,150))
+            self.rect = self.surf.get_rect(
+                center = (
+                    random.randint(screen_width + 20, screen_width + 100),
+                    random.randint(0, screen_height)
+                )
+            )
+            self.speed = random.randint(5,20)
+
+        def update(self):
+            self.rect.move_ip(-self.speed, 0)
+            if self.rect.right < 0:
+                self.kill()
 
     pg.init()
 
