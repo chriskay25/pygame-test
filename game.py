@@ -13,19 +13,35 @@ from pygame.locals import (
 def run_game():
     # Initialize and set up screen
     pg.init()
-    screen = pg.display.set_mode([800, 500])
+    screen_width = 800
+    screen_height = 500
+    screen = pg.display.set_mode([screen_width, screen_height])
 
     running = True
 
     while running:
         for event in pg.event.get():
-            if event.type == pg.QUIT:
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+            elif event.type == pg.QUIT:
                 running = False
-
+            
         screen.fill((255,255,255))
 
-        pg.draw.circle(screen, (0,0,255), (250,250), 75)
+        surf = pg.Surface((50,50))
+        surf.fill((0,0,0))
+        rect = surf.get_rect()
+        surf_center = (
+            (screen_width - surf.get_width()) / 2,
+            (screen_height - surf.get_height()) / 2
+        )
+        # Use blit to copy surf Surface onto screen Surface
+        screen.blit(surf, surf_center)
+
         # Screen refresh
         pg.display.flip()
 
     pg.quit()
+
+run_game()
