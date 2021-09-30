@@ -71,6 +71,11 @@ def run_game():
     # Instantiate player.
     player = Player()
 
+    # Groups to hold sprites
+    enemies = pg.sprite.Group()  # for collision detection & updates
+    all_sprites = pg.sprite.Group()  # for rendering
+    all_sprites.add(player)
+
     running = True
 
     while running:
@@ -88,8 +93,8 @@ def run_game():
             
         screen.fill((255,255,255))
 
-        # Use blit to copy player Surface onto screen Surface.
-        screen.blit(player.surf, player.rect)
+        for entity in all_sprites:
+            screen.blit(entity.surf, entity.rect)
 
         # Screen refresh.
         pg.display.flip()
