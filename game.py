@@ -9,6 +9,7 @@ from pygame.locals import (
     K_LEFT,
     K_RIGHT,
     K_ESCAPE,
+    K_SPACE,
     KEYDOWN,
     QUIT,
 )
@@ -22,7 +23,7 @@ def load_image(name, colorkey=None):
         raise SystemExit(message)
     image = image.convert()
     if colorkey is not None:
-        if colorkey is -1:
+        if colorkey == -1:
             colorkey = image.get_at((0,0))
         image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
@@ -60,6 +61,18 @@ def run_game():
                 self.rect.top = 0
             if self.rect.bottom >= screen_height:
                 self.rect.bottom = screen_height
+
+    class Laser(pg.sprite.Sprite):
+        def __init__(self, pos):
+            super(Laser, self).__init__()
+            self.image, self.rect = load_image('laserBlue14.png', -1)
+            self.rect.center = pos.center
+            self.rect.bottom = pos.top
+
+        def update(self):
+            self.rect.move_ip(0, -10)
+            if self.rect.bottom <= 10:
+                self.kill()
     
     # Create enemy object
     class Enemy(pg.sprite.Sprite):
@@ -85,15 +98,17 @@ def run_game():
     
     # Custom event for adding a new enemy
     ADDENEMY = pg.USEREVENT + 1
-    pg.time.set_timer(ADDENEMY, 1000)
+    pg.time.set_timer(ADDENEMY, 3000)
 
     # Instantiate player.
     player = Player()
 
     # Groups to hold sprites
     enemies = pg.sprite.Group()  # for collision detection & updates
+    lasers = pg.sprite.Group()
     all_sprites = pg.sprite.Group()  # for rendering
     all_sprites.add(player)
+    all_sprites.add(lasers)
 
     running = True
 
@@ -104,6 +119,11 @@ def run_game():
                 # If user pressed Escape key, stop loop.
                 if event.key == K_ESCAPE:
                     running = False
+                elif event.key == K_SPACE:
+                    pos = player.rect
+                    laser = Laser(pos)
+                    lasers.add(laser)
+                    all_sprites.add(laser)
 
             # If the user clicked the window close bttn, stop loop.
             elif event.type == pg.QUIT:
@@ -125,6 +145,8 @@ def run_game():
 
         # Update enemy position.
         enemies.update()
+
+        lasers.update()
             
         screen.fill((255,255,255))
 
@@ -141,7 +163,7 @@ def run_game():
         pg.display.flip()
 
         # Set a framerate of 30 frames per second.
-        clock.tick(30)
+        clock.tick(40)
 
     pg.quit()
 
