@@ -1,3 +1,4 @@
+import os, sys
 import pygame as pg
 import random
 # Import pygame.locals for easier access to key coordinates
@@ -12,6 +13,20 @@ from pygame.locals import (
     QUIT,
 )
 
+def load_image(name, colorkey=None):
+    fullname = os.path.join('images', name)
+    try:
+        image = pg.image.load(fullname)
+    except pg.error as message:
+        print("Can't load image: ", name)
+        raise SystemExit(message)
+    image = image.convert()
+    if colorkey is not None:
+        if colorkey is -1:
+            colorkey = image.get_at((0,0))
+        image.set_colorkey(colorkey, RLEACCEL)
+    return image, image.get_rect()
+
 def run_game():
     # Set up screen.
     screen_width = 1200
@@ -21,9 +36,7 @@ def run_game():
     class Player(pg.sprite.Sprite):
         def __init__(self):
             super(Player, self).__init__()
-            self.surf = pg.image.load('./images/playerShip3_red.png').convert()
-            self.surf.set_colorkey((0,0,0), RLEACCEL)
-            self.rect = self.surf.get_rect()
+            self.image, self.rect = load_image('playerShip3_red.png', -1)
             self.rect.bottom = screen_height
             self.rect.right = screen_width/2
 
@@ -52,9 +65,8 @@ def run_game():
     class Enemy(pg.sprite.Sprite):
         def __init__(self):
             super(Enemy, self).__init__()
-            self.surf = pg.image.load('./images/ufoGreen.png').convert()
-            self.surf.set_colorkey((0,0,0), RLEACCEL)
-            self.rect = self.surf.get_rect(
+            self.image, self.rect = load_image('ufoGreen.png', -1)
+            self.rect = self.image.get_rect(
                 center = (
                     random.randint(0, screen_width),
                     random.randint(0, 1)
@@ -117,7 +129,7 @@ def run_game():
         screen.fill((255,255,255))
 
         for entity in all_sprites:
-            screen.blit(entity.surf, entity.rect)
+            screen.blit(entity.image, entity.rect)
 
         # Check if any enemies have collided with the player.
         if pg.sprite.spritecollideany(player, enemies):
