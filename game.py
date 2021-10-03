@@ -1,5 +1,6 @@
 import os, sys
 import pygame as pg
+import pygame.freetype
 import random
 # Import pygame.locals for easier access to key coordinates
 from pygame.locals import (
@@ -91,10 +92,23 @@ def run_game():
             self.rect.move_ip(0, self.speed)
             if self.rect.bottom > screen_height:
                 self.kill()
-
+    
+    class Score(pg.sprite.Sprite):
+        def __init__(self):
+            super(Score, self).__init__()
+            self.surf = pg.Surface((25,25))
+            self.rect = self.surf.get_rect()
+            self.num = 0
+        
+        def update(self):
+            self.num += 1
+        
     pg.init()
+    pygame.freetype.init()
 
     screen = pg.display.set_mode([screen_width, screen_height])
+
+    game_font = pygame.freetype.SysFont(None, 24)
     
     # Custom event for adding a new enemy
     ADDENEMY = pg.USEREVENT + 1
@@ -103,12 +117,15 @@ def run_game():
     # Instantiate player.
     player = Player()
 
+    score = Score()
+
     # Groups to hold sprites
     enemies = pg.sprite.Group()  # for collision detection & updates
     lasers = pg.sprite.Group()
+    enemies_lasers = pg.sprite.Group()
     all_sprites = pg.sprite.Group()  # for rendering
     all_sprites.add(player)
-    all_sprites.add(lasers)
+    # all_sprites.add(lasers)
 
     running = True
 
@@ -123,6 +140,7 @@ def run_game():
                     pos = player.rect
                     laser = Laser(pos)
                     lasers.add(laser)
+                    enemies_lasers.add(laser)
                     all_sprites.add(laser)
 
             # If the user clicked the window close bttn, stop loop.
@@ -134,6 +152,7 @@ def run_game():
                 # Create new enemy and add it to sprite groups.
                 new_enemy = Enemy()
                 enemies.add(new_enemy)
+                enemies_lasers.add(new_enemy)
                 all_sprites.add(new_enemy)
             
         # Use clock to set framerate.
@@ -148,7 +167,9 @@ def run_game():
 
         lasers.update()
             
-        screen.fill((255,255,255))
+        screen.fill((0,0,0))
+
+        screen.blit(score.surf, (screen_width - 50, screen_height - 50))
 
         for entity in all_sprites:
             screen.blit(entity.image, entity.rect)
@@ -158,6 +179,13 @@ def run_game():
             # If so, then remove the player and stop loop.
             player.kill()
             running = False
+        
+        dir_hit = pg.sprite.groupcollide(enemies, lasers, True, True)
+
+        for enemy in dir_hit.values():
+            score.update()
+            fnt = game_font.render(str(score.num), (0,100,100), (0,0,0))
+            score.surf.blit(fnt[0], (score.rect.x, score.rect.y))
 
         # Screen refresh.
         pg.display.flip()
