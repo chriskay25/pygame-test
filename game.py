@@ -96,18 +96,19 @@ def run_game():
     class Score(pg.sprite.Sprite):
         def __init__(self):
             super(Score, self).__init__()
-            self.surf = pg.Surface((25,25))
-            self.rect = self.surf.get_rect()
+            self.image = pg.Surface((25,25))
+            self.rect = self.image.get_rect()
             self.num = 0
         
         def update(self):
             self.num += 1
         
+    # Initialize screen
     pg.init()
-    pygame.freetype.init()
-
     screen = pg.display.set_mode([screen_width, screen_height])
+    pg.display.set_caption('Pygame Shooter')
 
+    pygame.freetype.init()
     game_font = pygame.freetype.SysFont(None, 24)
     
     # Custom event for adding a new enemy
@@ -125,7 +126,6 @@ def run_game():
     enemies_lasers = pg.sprite.Group()
     all_sprites = pg.sprite.Group()  # for rendering
     all_sprites.add(player)
-    # all_sprites.add(lasers)
 
     running = True
 
@@ -169,7 +169,9 @@ def run_game():
             
         screen.fill((0,0,0))
 
-        screen.blit(score.surf, (screen_width - 50, screen_height - 50))
+        fnt = game_font.render(str(score.num), (0,100,100), (0,0,0))
+        score.image.blit(fnt[0], (score.rect.x, score.rect.y))
+        screen.blit(score.image, (screen_width - 50, screen_height - 50))
 
         for entity in all_sprites:
             screen.blit(entity.image, entity.rect)
@@ -184,8 +186,6 @@ def run_game():
 
         for enemy in dir_hit.values():
             score.update()
-            fnt = game_font.render(str(score.num), (0,100,100), (0,0,0))
-            score.surf.blit(fnt[0], (score.rect.x, score.rect.y))
 
         # Screen refresh.
         pg.display.flip()
